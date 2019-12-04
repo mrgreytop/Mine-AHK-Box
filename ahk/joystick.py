@@ -52,9 +52,9 @@ class JoyStickMixin(ScriptEngine):
             raise TypeError(f"Unsupported operand type for map: {type(bindings)}")
 
         if mode == "simple":    
-            script = self.render_template('remapping/simple_bind.ahk', bindings = bindings)
+            script = self.render_template('joystick/simple_bind.ahk', bindings = bindings)
         elif mode == "hold":
-            script = self.render_template('remapping/hold_bind.ahk', bindings = bindings)
+            script = self.render_template('joystick/hold_bind.ahk', bindings = bindings)
         elif mode == "multihold":
             script = self._bind_multihold(bindings = bindings,**kwargs)
 
@@ -66,7 +66,7 @@ class JoyStickMixin(ScriptEngine):
         timer = kwargs.pop("timer", 10)
         try:
             bindings = kwargs.pop("bindings")
-            return self.render_template('remapping/multihold_bind.ahk', bindings = bindings, timer = timer)
+            return self.render_template('joystick/multihold_bind.ahk', bindings = bindings, timer = timer)
         except KeyError as e:
             raise KeyError(f"bindings not found")
 
