@@ -33,7 +33,7 @@ class BindingMap(dict):
     def __add__(self, other: dict):
         return BindingMap({**self, **other})
 
-class BindingsMixin(ScriptEngine):
+class JoyStickMixin(ScriptEngine):
 
     def bind(self, bindings, mode = "simple", **kwargs):
         """
