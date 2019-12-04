@@ -5,8 +5,9 @@ from ahk.script import ScriptEngine
 from ahk.screen import ScreenMixin
 from ahk.keyboard import KeyboardMixin
 from ahk.sound import SoundMixin
+from ahk.bindings import BindingsMixin
 
-class AHK(WindowMixin, MouseMixin, KeyboardMixin, ScreenMixin, SoundMixin):
+class AHK(WindowMixin, MouseMixin, KeyboardMixin, ScreenMixin, SoundMixin, BindingsMixin):
     pass
 
 

@@ -4,7 +4,7 @@ from shutil import which
 from ahk.utils import make_logger
 from ahk.directives import Persistent
 from jinja2 import Environment, FileSystemLoader
-
+from ahk.utils import BOM
 logger = make_logger(__name__)
 
 
@@ -51,6 +51,7 @@ class ScriptEngine(object):
 
     def _run_script(self, script_text, **kwargs):
         blocking = kwargs.pop('blocking', True)
+        logger.debug(f"Blocking set to: {blocking}")
         runargs = [self.executable_path, '/ErrorStdOut', '*']
         decode = kwargs.pop('decode', False)
         script_bytes = bytes(script_text, 'utf-8')
@@ -71,10 +72,15 @@ class ScriptEngine(object):
             return proc
 
     def run_script(self, script_text: str, decode=True, blocking=True, **runkwargs):
-        logger.debug('Running script text: %s', script_text)
+        try:
+            script_text = script_text.encode(encoding = 'utf-8').lstrip(BOM).decode('utf-8')
+        except Exception as e:
+            logger.debug(f'Error striping BOM from script_text: {e}')
+        logger.debug('Running script text: \n%s',script_text)
         try:
             result = self._run_script(script_text, decode=decode, blocking=blocking, **runkwargs)
         except Exception as e:
-            logger.fatal('Error running temp script: %s', e)
+            logger.fatal(f'Error running temp script: {e}')
             raise
         return result
+

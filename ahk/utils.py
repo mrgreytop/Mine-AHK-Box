@@ -1,5 +1,7 @@
 import logging
 
+BOM = b'\xef\xbb\xbf'
+
 ESCAPE_SEQUENCE_MAP = {
     '\n': '`n',
     '\t': '`t',
