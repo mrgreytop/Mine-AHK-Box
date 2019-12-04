@@ -3,7 +3,7 @@ import subprocess
 from shutil import which
 from ahk.utils import make_logger
 from ahk.directives import Persistent
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
 from ahk.utils import BOM
 logger = make_logger(__name__)
 
@@ -47,7 +47,14 @@ class ScriptEngine(object):
 
         kwargs['directives'] = directives
         template = self.env.get_template(template_name)
-        return template.render(**kwargs)
+        try:
+            rend = template.render(**kwargs)
+        except TemplateSyntaxError as e:
+            logger.debug(f"TemplateSyntaxError at line no: {e.lineno}")
+            logger.debug(f"TemplateSyntaxError from template: {e.name}")
+            # raise e
+            rend = ""
+        return rend
 
     def _run_script(self, script_text, **kwargs):
         blocking = kwargs.pop('blocking', True)

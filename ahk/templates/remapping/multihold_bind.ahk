@@ -1,16 +1,16 @@
 {% extends "base.ahk" %}
 {% block body %}
-{% for key,value in bindings.items() %}
+{% for key, value in bindings.items() %}
 {{key}}::
-Send {{{value}} down}
-SetTimer, WaitFor{{key}}Up, {{refresh}}
+Send { {{value}} down}
+SetTimer, WaitFor{{key}}Up, {{timer}}
 return
 
 WaitFor{{key}}Up:
 if GetKeyState("{{key}}")
     return
-Send {{{value}} up}
+Send { {{value}} up}
 SetTimer, WaitFor{{key}}Up, Off
 return
-{%endfor%}
+{% endfor %}
 {% endblock body %}

@@ -31,7 +31,7 @@ class BindingMap(dict):
         super().__init__(self._d)
         
     def __add__(self, other: dict):
-        return Mapping({**self, **other})
+        return BindingMap({**self, **other})
 
 class BindingsMixin(ScriptEngine):
 
@@ -56,12 +56,19 @@ class BindingsMixin(ScriptEngine):
         elif mode == "hold":
             script = self.render_template('remapping/hold_bind.ahk', bindings = bindings)
         elif mode == "multihold":
-            script = self._bind_multihold(**kwargs)
+            script = self._bind_multihold(bindings = bindings,**kwargs)
 
         self.run_script(script, blocking=False)
+        # logger.debug(f"this is the script:\n{script}")
         
     
     def _bind_multihold(self, **kwargs):
-        refresh = kwargs.pop("")
-    
+        timer = kwargs.pop("timer", 10)
+        try:
+            bindings = kwargs.pop("bindings")
+            return self.render_template('remapping/multihold_bind.ahk', bindings = bindings, timer = timer)
+        except KeyError as e:
+            raise KeyError(f"bindings not found")
+
+
     
