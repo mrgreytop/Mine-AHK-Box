@@ -33,6 +33,7 @@ GetDirection(X, Y)
             direction := []
         }
     }
+    return %direction%
 }
 
 WatchAxis:
