@@ -77,9 +77,10 @@ class JoyStickMixin(ScriptEngine):
     keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"}):
         
         """
+
         https://www.autohotkey.com/docs/misc/RemapJo-ystick.htm#joystick-axes
         """
-        script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, threshold = threshold, timer = timer)
+        script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, timer = timer)
         self.run_script(script, blocking=False)
         
         

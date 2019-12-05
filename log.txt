@@ -2,49 +2,58 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
-Joy1::
-Send { s down}
-SetTimer, WaitForJoy1Up, 10
+KeysDown := []
+SetTimer, WatchAxis, 5
 return
 
-WaitForJoy1Up:
-if GetKeyState("Joy1")
-    return
-Send { s up}
-SetTimer, WaitForJoy1Up, Off
-return
-Joy2::
-Send { d down}
-SetTimer, WaitForJoy2Up, 10
-return
+GetDirection(X, Y)
+{
+    if (X<30)
+    {
+        if (Y<30){
+            direction := ["w","a"]
+        }else if (Y > 70){
+            direction := ["s","a"]
+        }else{
+            direction := ["a"]
+        }
+    }else if (X>70)
+    {
+        if (Y<30){
+            direction := ["w","d"]
+        }else if (Y > 70){
+            direction := ["s","d"]
+        }else{
+            direction := ["d"]
+        }
+    }else{
+        if (Y<30){
+            direction := ["w"]
+        }else if (Y > 70){
+            direction := ["s"]
+        }else{
+            direction := []
+        }
+    }
+}
 
-WaitForJoy2Up:
-if GetKeyState("Joy2")
-    return
-Send { d up}
-SetTimer, WaitForJoy2Up, Off
-return
-Joy3::
-Send { a down}
-SetTimer, WaitForJoy3Up, 10
-return
+WatchAxis:
+JoyX := GetKeyState("JoyX")  
+JoyY := GetKeyState("JoyY") 
+KeysDown := KeysToHoldDown
 
-WaitForJoy3Up:
-if GetKeyState("Joy3")
-    return
-Send { a up}
-SetTimer, WaitForJoy3Up, Off
-return
-Joy4::
-Send { w down}
-SetTimer, WaitForJoy4Up, 10
-return
+KeysToHoldDown := GetDirection(JoyX, JoyY)
 
-WaitForJoy4Up:
-if GetKeyState("Joy4")
+
+SetKeyDelay -1  ; Avoid delays between keystrokes.
+if (KeysToHoldDown = KeysDown){
     return
-Send { w up}
-SetTimer, WaitForJoy4Up, Off
+}else{
+    for index, key in KeysDown
+        Send {%key% Up}
+    for index, key in KeysToHoldDown
+        Send {%key% Down}
+}
 return
 
 ExitApp
