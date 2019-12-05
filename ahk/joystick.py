@@ -70,5 +70,19 @@ class JoyStickMixin(ScriptEngine):
         except KeyError as e:
             raise KeyError(f"bindings not found")
 
+    def joyXY_keyboard(self, 
+    threshold = 30,
+    timer = 5, 
+    axes = {"X":"JoyX", "Y":"JoyY"},
+    keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"}):
+        
+        """
+        https://www.autohotkey.com/docs/misc/RemapJo-ystick.htm#joystick-axes
+        """
+        script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, threshold = threshold, timer = timer)
+        self.run_script(script, blocking=False)
+        
+        
+
 
     
