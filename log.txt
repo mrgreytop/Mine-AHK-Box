@@ -2,60 +2,33 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
-KeysDown := []
-SetTimer, WatchAxis, 5
+
+SetTimer, WatchJoystick, 5
 return
 
-GetDirection(X, Y)
-{
-    if (X<30)
-    {
-        if (Y<30){
-            direction := ["w","a"]
-        }else if (Y > 70){
-            direction := ["s","a"]
-        }else{
-            direction := ["a"]
-        }
-    }else if (X>70)
-    {
-        if (Y<30){
-            direction := ["w","d"]
-        }else if (Y > 70){
-            direction := ["s","d"]
-        }else{
-            direction := ["d"]
-        }
+WatchJoystick:
+MoveMouse := False
+X = GetKeyState("JoyU")
+Y = GetKeyState("JoyR")
+
+deltaX := Getdelta(X)
+deltaY := Getdelta(Y)
+
+s := Format("{1},{2}`n",deltaX,deltaY)
+FileAppend, %s%, "mouse.txt"
+return
+
+Getdelta(axis){
+    if (axis > 60){
+        delta := axis - 60
+    }else if (axis < 40){
+        delta := axis - 40
     }else{
-        if (Y<30){
-            direction := ["w"]
-        }else if (Y > 70){
-            direction := ["s"]
-        }else{
-            direction := []
-        }
+        delta := 0
     }
-    return %direction%
+    return %delta%
 }
 
-WatchAxis:
-JoyX := GetKeyState("JoyX")  
-JoyY := GetKeyState("JoyY") 
-KeysDown := KeysToHoldDown
-
-KeysToHoldDown := GetDirection(JoyX, JoyY)
-
-
-SetKeyDelay -1  ; Avoid delays between keystrokes.
-if (KeysToHoldDown = KeysDown){
-    return
-}else{
-    for index, key in KeysDown
-        Send {%key% Up}
-    for index, key in KeysToHoldDown
-        Send {%key% Down}
-}
-return
 
 ExitApp
 
