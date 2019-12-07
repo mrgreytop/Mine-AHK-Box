@@ -116,11 +116,13 @@ class Window(object):
         return cls(engine=engine, ahk_id=ahk_id, **kwargs)
 
     def __getattr__(self, attr):
+        print("getting attr")
         if attr.lower() in self._subcommands:
             return self.get(attr)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
 
     def get(self, subcommand):
+        print(f"get, {subcommand}")
         sub = self._subcommands.get(subcommand)
         if not sub:
             raise ValueError(f'No such subcommand {subcommand}')
@@ -269,6 +271,16 @@ class Window(object):
             keys = escape_sequence_replace(keys)
         script = self._render_template('window/win_send.ahk', keys=keys, raw=raw, delay=delay, blocking=blocking)
         return self.engine.run_script(script, blocking=blocking)
+    
+    def maximise(self):
+        """
+        Maximise the window
+        https://www.autohotkey.com/docs/commands/WinMaximize.htm
+        """
+        script = self._render_template("window/win_maximise.ahk")
+        self.engine.run_script(script)
+
+    
 
     def __eq__(self, other):
         if not isinstance(other, Window):
