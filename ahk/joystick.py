@@ -34,8 +34,15 @@ class BindingMap(dict):
         return BindingMap({**self, **other})
 
 class JoyStickMixin(ScriptEngine):
+    
+    bind_modes = {
+        "simple":"_simple",
+        "hold":"_hold",
+        "multihold":"_multihold",
+        "script":"_bind_script"
+    }
 
-    def bind(self, bindings, mode = "simple", **kwargs):
+    def joy_bind(self, bindings = {}, mode = "simple", **kwargs):
         """
         remap keys according to bindings
 
@@ -51,18 +58,14 @@ class JoyStickMixin(ScriptEngine):
         if not isinstance(bindings, dict):
             raise TypeError(f"Unsupported operand type for map: {type(bindings)}")
 
-        if mode == "simple":    
-            script = self.render_template('joystick/simple_bind.ahk', bindings = bindings)
-        elif mode == "hold":
-            script = self.render_template('joystick/hold_bind.ahk', bindings = bindings)
-        elif mode == "multihold":
-            script = self._bind_multihold(bindings = bindings,**kwargs)
+        builder = self.__getattr__(bind_modes[mode])
+        script = bu(bindings = bindings, **kwargs)
 
         self.run_script(script, blocking=False)
         # logger.debug(f"this is the script:\n{script}")
         
     
-    def _bind_multihold(self, **kwargs):
+    def _multihold(self, **kwargs):
         timer = kwargs.pop("timer", 10)
         try:
             bindings = kwargs.pop("bindings")
@@ -70,14 +73,32 @@ class JoyStickMixin(ScriptEngine):
         except KeyError as e:
             raise KeyError(f"bindings not found")
 
-    def joyXY_keyboard(self, 
-    threshold = 30,
+    def _simple(self, **kwargs):
+        bindings = kwargs.pop("bindings", False)
+
+        if bindings == False:
+            raise ValueError("No bindings given")
+        
+        return self.render_template('joystick/simple_bind.ahk', bindings=bindings)
+
+    def _hold(self, **kwargs):
+        bindings = kwargs.pop("bindings", False)
+
+        if bindings == False:
+            raise ValueError("No bindings given")
+
+        return self.render_template('joystick/hold_bind.ahk', bindings=bindings)
+    
+    def _script(self, **kwargs):
+        raise NotImplementedError
+
+    def joyXY_keyboard(self,
     timer = 5, 
     axes = {"X":"JoyX", "Y":"JoyY"},
     keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"}):
         
         """
-
+        Maps the input from an analog stick to for direction keys
         https://www.autohotkey.com/docs/misc/RemapJo-ystick.htm#joystick-axes
         """
         script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, timer = timer)
@@ -85,5 +106,21 @@ class JoyStickMixin(ScriptEngine):
         
         
 
+    def joy_2_mouse(self,
+    timer = 5,
+    sensitivity = 0.3,
+    axes={"X": "JoyU", "Y": "JoyR"},
+    thresholds = {"Upper":60, "Lower":40},
+    mode = "FPS"):
 
-    
+        """
+        https://www.autohotkey.com/docs/scripts/JoystickMouse.htm
+        """
+
+        script = self.render_template(
+            "joystick/joy_2_mouse.ahk", 
+            sens = sensitivity, axes=axes, 
+            timer=timer, thresholds = thresholds, mode = mode)
+
+        # logger.debug(script)
+        self.run_script(script, blocking = False)

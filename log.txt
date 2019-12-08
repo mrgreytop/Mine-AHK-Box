@@ -2,6 +2,91 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
+Joy1::
+Send { Space down}
+SetTimer, WaitForJoy1Up, 10
+return
+
+WaitForJoy1Up:
+if GetKeyState("Joy1")
+    return
+Send { Space up}
+SetTimer, WaitForJoy1Up, Off
+return
+Joy2::
+Send { q down}
+SetTimer, WaitForJoy2Up, 10
+return
+
+WaitForJoy2Up:
+if GetKeyState("Joy2")
+    return
+Send { q up}
+SetTimer, WaitForJoy2Up, Off
+return
+Joy3::
+Send { e down}
+SetTimer, WaitForJoy3Up, 10
+return
+
+WaitForJoy3Up:
+if GetKeyState("Joy3")
+    return
+Send { e up}
+SetTimer, WaitForJoy3Up, Off
+return
+Joy4::
+Send { f down}
+SetTimer, WaitForJoy4Up, 10
+return
+
+WaitForJoy4Up:
+if GetKeyState("Joy4")
+    return
+Send { f up}
+SetTimer, WaitForJoy4Up, Off
+return
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+SetTimer, WatchJoystick, 5
+return
+
+GetDelta(axis){
+    if (axis < 40){
+        delta := axis - 40
+    }else if (axis > 60){
+        delta := axis - 60
+    }else{
+        delta := 0
+    }
+    return delta
+}
+
+WatchJoystick:
+    X := GetKeyState("JoyU")
+    Y := GetKeyState("JoyR")
+
+    deltaX := Getdelta(X)
+    deltaY := Getdelta(Y)
+
+    if abs(deltaX) > 0 or abs(deltaY) > 0
+                DllCall("mouse_event" ,uint, 1, int, deltaX*0.3, int, deltaY*0.3)
+            return
+
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
 KeysDown := []
 SetTimer, WatchAxis, 5
 return
