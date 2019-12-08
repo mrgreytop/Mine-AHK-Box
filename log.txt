@@ -2,6 +2,7 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
+<<<<<<< HEAD
 Joy1::
 Send { Space down}
 SetTimer, WaitForJoy1Up, 10
@@ -90,57 +91,35 @@ DEBUG:ahk.script:Running script text:
 KeysDown := []
 SetTimer, WatchAxis, 5
 return
+=======
+>>>>>>> acb3ff348a0da3e38dd2ecc4a3ef229079a8cd55
 
-GetDirection(X, Y)
-{
-    if (X<30)
-    {
-        if (Y<30){
-            direction := ["w","a"]
-        }else if (Y > 70){
-            direction := ["s","a"]
-        }else{
-            direction := ["a"]
-        }
-    }else if (X>70)
-    {
-        if (Y<30){
-            direction := ["w","d"]
-        }else if (Y > 70){
-            direction := ["s","d"]
-        }else{
-            direction := ["d"]
-        }
-    }else{
-        if (Y<30){
-            direction := ["w"]
-        }else if (Y > 70){
-            direction := ["s"]
-        }else{
-            direction := []
-        }
-    }
-    return %direction%
-}
-
-WatchAxis:
-JoyX := GetKeyState("JoyX")  
-JoyY := GetKeyState("JoyY") 
-KeysDown := KeysToHoldDown
-
-KeysToHoldDown := GetDirection(JoyX, JoyY)
-
-
-SetKeyDelay -1  ; Avoid delays between keystrokes.
-if (KeysToHoldDown = KeysDown){
-    return
-}else{
-    for index, key in KeysDown
-        Send {%key% Up}
-    for index, key in KeysToHoldDown
-        Send {%key% Down}
-}
+SetTimer, WatchJoystick, 5
 return
+
+WatchJoystick:
+MoveMouse := False
+X = GetKeyState("JoyU")
+Y = GetKeyState("JoyR")
+
+deltaX := Getdelta(X)
+deltaY := Getdelta(Y)
+
+s := Format("{1},{2}`n",deltaX,deltaY)
+FileAppend, %s%, "mouse.txt"
+return
+
+Getdelta(axis){
+    if (axis > 60){
+        delta := axis - 60
+    }else if (axis < 40){
+        delta := axis - 40
+    }else{
+        delta := 0
+    }
+    return %delta%
+}
+
 
 ExitApp
 

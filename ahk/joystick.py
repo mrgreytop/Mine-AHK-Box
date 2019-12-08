@@ -59,7 +59,7 @@ class JoyStickMixin(ScriptEngine):
             raise TypeError(f"Unsupported operand type for map: {type(bindings)}")
 
         builder = self.__getattr__(bind_modes[mode])
-        script = bu(bindings = bindings, **kwargs)
+        script = builder(bindings = bindings, **kwargs)
 
         self.run_script(script, blocking=False)
         # logger.debug(f"this is the script:\n{script}")
