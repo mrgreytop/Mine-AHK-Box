@@ -124,3 +124,17 @@ class JoyStickMixin(ScriptEngine):
 
         # logger.debug(script)
         self.run_script(script, blocking = False)
+
+    def trigger_2_keys(self,
+    trigger = "JoyZ",
+    thresholds = {"Upper":70,"Lower":30},
+    keys = ["MouseButton1","MouseButton2"],
+    timer = 10):
+        
+        script = self.render_template(
+            'joystick/trigger_2_keys', 
+            keys = keys, 
+            thresholds = thresholds, 
+            trigger = trigger,timer = timer)
+        
+        logger.debug(f"\n{script}")
