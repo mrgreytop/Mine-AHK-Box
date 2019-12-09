@@ -110,7 +110,7 @@ class JoyStickMixin(ScriptEngine):
     timer = 5,
     sensitivity = 0.3,
     axes={"X": "JoyU", "Y": "JoyR"},
-    thresholds = {"Upper":60, "Lower":40},
+    thresholds = {"Upper":55, "Lower":45},
     mode = "FPS"):
 
         """
@@ -125,16 +125,18 @@ class JoyStickMixin(ScriptEngine):
         # logger.debug(script)
         self.run_script(script, blocking = False)
 
-    def trigger_2_keys(self,
-    trigger = "JoyZ",
-    thresholds = {"Upper":70,"Lower":30},
-    keys = ["MouseButton1","MouseButton2"],
-    timer = 10):
+    def triggers_2_mouseclick(self,
+    threshold = 190,
+    timer = 5,
+    joystick = 1,
+    mapping = {"LT":"right", "RT":"left"}):
         
         script = self.render_template(
-            'joystick/trigger_2_keys', 
-            keys = keys, 
-            thresholds = thresholds, 
-            trigger = trigger,timer = timer)
+            'joystick/trigger_2_mouseclick.ahk', 
+            threshold = threshold, 
+            timer = timer,
+            joystick = joystick,
+            mapping = mapping)
         
-        logger.debug(f"\n{script}")
+        # logger.debug(f"\n{script}")
+        self.run_script(script, blocking=False)
