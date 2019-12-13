@@ -1,10 +1,9 @@
 import os
 import subprocess
 from shutil import which
-from ahk.utils import make_logger
+from ahk.utils import make_logger, BOM
 from ahk.directives import Persistent
 from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
-from ahk.utils import BOM
 logger = make_logger(__name__)
 
 
@@ -61,6 +60,7 @@ class ScriptEngine(object):
         logger.debug(f"Blocking set to: {blocking}")
         runargs = [self.executable_path, '/ErrorStdOut', '*']
         decode = kwargs.pop('decode', False)
+
         script_bytes = bytes(script_text, 'utf-8')
         if blocking:
             result = subprocess.run(runargs, input=script_bytes, stderr=subprocess.PIPE, stdout=subprocess.PIPE, **kwargs)
@@ -82,7 +82,7 @@ class ScriptEngine(object):
         try:
             script_text = script_text.encode(encoding = 'utf-8').lstrip(BOM).decode('utf-8')
         except Exception as e:
-            logger.debug(f'Error striping BOM from script_text: {e}')
+            logger.warning(f'Error striping BOM from script_text: \n{e}')
         logger.debug('Running script text: \n%s',script_text)
         try:
             result = self._run_script(script_text, decode=decode, blocking=blocking, **runkwargs)

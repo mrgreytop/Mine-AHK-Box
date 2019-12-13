@@ -61,10 +61,9 @@ class JoyStickMixin(ScriptEngine):
         builder = self.__getattr__(bind_modes[mode])
         script = builder(bindings = bindings, **kwargs)
 
-        self.run_script(script, blocking=False)
-        # logger.debug(f"this is the script:\n{script}")
-        
-    
+        proc = self.run_script(script, blocking=False)
+        return proc
+           
     def _multihold(self, **kwargs):
         timer = kwargs.pop("timer", 10)
         try:
@@ -89,7 +88,7 @@ class JoyStickMixin(ScriptEngine):
 
         return self.render_template('joystick/hold_bind.ahk', bindings=bindings)
     
-    def _script(self, **kwargs):
+    def _bind_script(self, **kwargs):
         raise NotImplementedError
 
     def joyXY_keyboard(self,
@@ -98,20 +97,17 @@ class JoyStickMixin(ScriptEngine):
     keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"}):
         
         """
-        Maps the input from an analog stick to for direction keys
-        https://www.autohotkey.com/docs/misc/RemapJo-ystick.htm#joystick-axes
+        Maps the input from an analog stick to four direction keys with 8 directional output
         """
         script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, timer = timer)
-        self.run_script(script, blocking=False)
+        proc = self.run_script(script, blocking=False)
+        return proc
         
         
 
-    def joy_2_mouse(self,
-    timer = 5,
-    sensitivity = 0.3,
-    axes={"X": "JoyU", "Y": "JoyR"},
-    thresholds = {"Upper":55, "Lower":45},
-    mode = "FPS"):
+    def joy_2_mouse(self,timer = 5,
+    sensitivity = 0.3,axes={"X": "JoyU", "Y": "JoyR"},
+    thresholds = {"Upper":55, "Lower":45},mode = "FPS"):
 
         """
         https://www.autohotkey.com/docs/scripts/JoystickMouse.htm
@@ -123,13 +119,11 @@ class JoyStickMixin(ScriptEngine):
             timer=timer, thresholds = thresholds, mode = mode)
 
         # logger.debug(script)
-        self.run_script(script, blocking = False)
+        proc = self.run_script(script, blocking = False)
+        return proc
 
-    def triggers_2_mouseclick(self,
-    threshold = 190,
-    timer = 5,
-    joystick = 1,
-    mapping = {"LT":"right", "RT":"left"}):
+    def triggers_2_mouseclick(self,threshold = 190,
+    timer = 5,joystick = 1,mapping = {"LT":"right", "RT":"left"}):
         
         script = self.render_template(
             'joystick/trigger_2_mouseclick.ahk', 
@@ -139,4 +133,15 @@ class JoyStickMixin(ScriptEngine):
             mapping = mapping)
         
         # logger.debug(f"\n{script}")
-        self.run_script(script, blocking=False)
+        proc = self.run_script(script, blocking=False)
+        return proc
+
+    def joy_gridmouse(self,dx=15,dy=15,freq=100,delay=0):
+
+        script = self.render_template(
+            'joystick/joy_gridmouse.ahk',
+            dx = dx, dy = dy, freq = freq, delay = delay
+        )
+
+        proc = self.run_script(script, blocking = False)
+        return proc

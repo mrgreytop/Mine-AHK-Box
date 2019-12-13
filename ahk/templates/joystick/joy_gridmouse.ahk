@@ -1,6 +1,5 @@
-DEBUG:ahk.script:Running script text: 
-#NoEnv
-#Persistent
+{% extends "base.ahk" %}
+{% block body %}
 ; initialise
 global Direction := [0,0]
 global move := Func("GridMoveMouse").bind(Direction)
@@ -12,15 +11,15 @@ GetDir(POV){
     if POV < 0
         return [0,0]
     else if POV > 31401
-        return [0, -15]
+        return [0, -{{dy}}]
     else if POV between -1 and 4400
-        return [0, -15]
+        return [0, -{{dy}}]
     else if POV between 4401 and 13400
-        return [15, 0]
+        return [{{dx}}, 0]
     else if POV between 13401 and 22400
-        return [0, 15]
+        return [0, {{dy}}]
     else if POV between 22401 and 31400
-        return [-15, 0]
+        return [-{{dx}}, 0]
 
 }
 
@@ -38,7 +37,10 @@ WatchPOV(){
         MouseMove, Direction[1], Direction[0], 0, R
         SetTimer, %move%, Off
         move := Func("GridMoveMouse").bind(Direction)
-                SetTimer, %move%, 100
+        {% if delay > 0 %}
+        Sleep, {{delay}}
+        {% endif %}
+        SetTimer, %move%, {{freq}}
     }
     return
 }
@@ -47,7 +49,4 @@ GridMoveMouse(XY){
     MouseMove, XY[1], XY[2], 0, R
     return
 }
-ExitApp
-DEBUG:ahk.script:Blocking set to: True
-DEBUG:ahk.script:Stdout: b''
-DEBUG:ahk.script:Stderr: b''
+{% endblock body %}
