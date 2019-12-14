@@ -101,10 +101,8 @@ class KeyModifier(Key):
 
     @property
     def symbol(self):
-        try:
-            return SYMBOLS.get(self.name, str(self))
-        except Exception as e:
-            raise Exception(f"Could not find modifier symbol for key: {self.name}\n{e}")
+        return SYMBOLS.get(self.name, str(self))
+            
 
     def __add__(self, other):
         if isinstance(other, KeyModifier):
