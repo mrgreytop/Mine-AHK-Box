@@ -35,18 +35,19 @@ class BindingMap(dict):
 
 class JoyStickMixin(ScriptEngine):
     
-    bind_modes = {
+    _bind_modes = {
         "simple":"_simple",
         "hold":"_hold",
         "multihold":"_multihold",
-        "script":"_bind_script"
+        "script":"_simple_script",
+        "holdscript":"_hold_script"
     }
 
     def joy_bind(self, bindings = {}, mode = "simple", **kwargs):
         """
         remap keys according to bindings
 
-        https://www.autohotkey.com/docs/misc/RemapJoystick.htm
+        https://www.autohotkey.com/docs/misc/RemapJoystick.htm#different-approaches
 
         :param bindings: a BindingMap/dict where each key is the name of the key to map
                     and each value is the name of the key to map to
@@ -58,19 +59,34 @@ class JoyStickMixin(ScriptEngine):
         if not isinstance(bindings, dict):
             raise TypeError(f"Unsupported operand type for map: {type(bindings)}")
 
-        builder = self.__getattr__(bind_modes[mode])
+        if mode.lower() in self._bind_modes:
+            builder = getattr(self, self._bind_modes[mode.lower()])
+        else:
+            logger.error(f"invalid mode ({mode}) selected")
+            raise ValueError(f"invalid mode ({mode}) selected")
         script = builder(bindings = bindings, **kwargs)
 
+        print(script)
         proc = self.run_script(script, blocking=False)
         return proc
            
     def _multihold(self, **kwargs):
+        bindings = kwargs.pop("bindings", False)
+        if bindings == False:
+            raise KeyError("bindings not found")
+
         timer = kwargs.pop("timer", 10)
-        try:
-            bindings = kwargs.pop("bindings")
-            return self.render_template('joystick/multihold_bind.ahk', bindings = bindings, timer = timer)
-        except KeyError as e:
-            raise KeyError(f"bindings not found")
+        delay = kwargs.pop("delay", 200)
+        for key, value in bindings.items():
+            bindings[key] = {
+                "up": f"Send {{{value} up}}",
+                "down": f"Send {{{value} down}}\nSleep, {delay}",
+                "held": f"Send {{{value} down}}"
+            }
+
+        # return self.render_template('joystick/multihold_bind.ahk', bindings = bindings, timer = timer)
+        return self._hold_script(bindings = bindings)
+
 
     def _simple(self, **kwargs):
         bindings = kwargs.pop("bindings", False)
@@ -88,8 +104,31 @@ class JoyStickMixin(ScriptEngine):
 
         return self.render_template('joystick/hold_bind.ahk', bindings=bindings)
     
-    def _bind_script(self, **kwargs):
+    def _simple_script(self, **kwargs):
         raise NotImplementedError
+
+    def _hold_script(self, **kwargs):
+        bindings = kwargs.pop("bindings", {})
+        timers = kwargs.pop("timer", [10]*len(bindings))
+
+        for key, script in bindings.items():
+            try:
+                bindings[key]["up"] = script.pop("up", False)
+                bindings[key]["down"] = script.pop("down", False)
+                bindings[key]["held"] = script.pop("held", "return")
+            except AttributeError as e:
+                logger.error(f"\n{e.with_traceback}")
+                raise TypeError(f"script for {key} must be a dict not a {type(script)}")
+
+            for state, action in script.items():
+                if action == False:
+                    raise ValueError(f"The script for key {state} is undefined")
+        
+        if len(timers) != len(bindings):
+            raise ValueError(f"Number of timers ({len(timers)}) must be equal to the number of bindings ({len(bindings)})")
+
+        bindings_timer = zip(bindings.items(), timers)
+        return self.render_template("joystick/holdscript_bind.ahk",bindings_timer = bindings_timer)
 
     def joyXY_keyboard(self,
     timer = 5, 
@@ -103,8 +142,6 @@ class JoyStickMixin(ScriptEngine):
         proc = self.run_script(script, blocking=False)
         return proc
         
-        
-
     def joy_2_mouse(self,timer = 5,
     sensitivity = 0.3,axes={"X": "JoyU", "Y": "JoyR"},
     thresholds = {"Upper":55, "Lower":45},mode = "FPS"):

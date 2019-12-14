@@ -116,13 +116,11 @@ class Window(object):
         return cls(engine=engine, ahk_id=ahk_id, **kwargs)
 
     def __getattr__(self, attr):
-        print("getting attr")
         if attr.lower() in self._subcommands:
             return self.get(attr)
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
 
     def get(self, subcommand):
-        print(f"get, {subcommand}")
         sub = self._subcommands.get(subcommand)
         if not sub:
             raise ValueError(f'No such subcommand {subcommand}')
