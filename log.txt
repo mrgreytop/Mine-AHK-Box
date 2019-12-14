@@ -2,6 +2,21 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
+Joy1::
+Send {Space down}
+Sleep, 200
+SetTimer, WaitForJoy1Up, 10
+return
+
+WaitForJoy1Up(){
+    if (GetKeyState("Joy1")){
+        Send {Space down}
+    }else{
+        Send {Space up}
+        SetTimer, WaitForJoy1Up, Off
+    }
+    return
+}
 Joy2::
 Send {q down}
 Sleep, 200
@@ -17,6 +32,98 @@ WaitForJoy2Up(){
     }
     return
 }
+Joy9::
+Send {LCtrl down}
+Sleep, 200
+SetTimer, WaitForJoy9Up, 10
+return
+
+WaitForJoy9Up(){
+    if (GetKeyState("Joy9")){
+        Send {LCtrl down}
+    }else{
+        Send {LCtrl up}
+        SetTimer, WaitForJoy9Up, Off
+    }
+    return
+}
+Joy10::
+Send {LShift down}
+Sleep, 200
+SetTimer, WaitForJoy10Up, 10
+return
+
+WaitForJoy10Up(){
+    if (GetKeyState("Joy10")){
+        Send {LShift down}
+    }else{
+        Send {LShift up}
+        SetTimer, WaitForJoy10Up, Off
+    }
+    return
+}
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+KeysDown := []
+SetTimer, WatchAxis, 5
+return
+
+GetDirection(X, Y)
+{
+    if (X<30)
+    {
+        if (Y<30){
+            direction := ["w","a"]
+        }else if (Y > 70){
+            direction := ["s","a"]
+        }else{
+            direction := ["a"]
+        }
+    }else if (X>70)
+    {
+        if (Y<30){
+            direction := ["w","d"]
+        }else if (Y > 70){
+            direction := ["s","d"]
+        }else{
+            direction := ["d"]
+        }
+    }else{
+        if (Y<30){
+            direction := ["w"]
+        }else if (Y > 70){
+            direction := ["s"]
+        }else{
+            direction := []
+        }
+    }
+    return %direction%
+}
+
+WatchAxis:
+JoyX := GetKeyState("JoyX")  
+JoyY := GetKeyState("JoyY") 
+KeysDown := KeysToHoldDown
+
+KeysToHoldDown := GetDirection(JoyX, JoyY)
+
+
+SetKeyDelay -1  ; Avoid delays between keystrokes.
+if (KeysToHoldDown = KeysDown){
+    return
+}else{
+    for index, key in KeysDown
+        Send {%key% Up}
+    for index, key in KeysToHoldDown
+        Send {%key% Down}
+}
+return
 
 ExitApp
 

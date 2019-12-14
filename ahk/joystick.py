@@ -2,6 +2,7 @@
 import logging
 from ahk.script import ScriptEngine
 from ahk.utils import make_logger
+from ahk.keys import Key
 
 logger = make_logger(__name__)
 
@@ -38,12 +39,11 @@ class JoyStickMixin(ScriptEngine):
     _bind_modes = {
         "simple":"_simple",
         "hold":"_hold",
-        "multihold":"_multihold",
         "script":"_simple_script",
         "holdscript":"_hold_script"
     }
 
-    def joy_bind(self, bindings = {}, mode = "simple", **kwargs):
+    def joy_bind(self, bindings = {}, mode = "multihold", **kwargs):
         """
         remap keys according to bindings
 
@@ -53,8 +53,7 @@ class JoyStickMixin(ScriptEngine):
                     and each value is the name of the key to map to
         :param mode: string with 3 possible values, simple, hold and multihold.
         simple mode: key::value
-        hold: see Method #2 in link above
-        multihold: see Method #3 in link above
+        hold: see Method #3 in link aboves
         """
         if not isinstance(bindings, dict):
             raise TypeError(f"Unsupported operand type for map: {type(bindings)}")
@@ -64,29 +63,30 @@ class JoyStickMixin(ScriptEngine):
         else:
             logger.error(f"invalid mode ({mode}) selected")
             raise ValueError(f"invalid mode ({mode}) selected")
+
         script = builder(bindings = bindings, **kwargs)
 
-        print(script)
         proc = self.run_script(script, blocking=False)
         return proc
            
-    def _multihold(self, **kwargs):
+    def _hold(self, **kwargs):
         bindings = kwargs.pop("bindings", False)
         if bindings == False:
             raise KeyError("bindings not found")
 
         timer = kwargs.pop("timer", 10)
         delay = kwargs.pop("delay", 200)
+
         for key, value in bindings.items():
+            KeyVal = Key(Key_name = value)
             bindings[key] = {
-                "up": f"Send {{{value} up}}",
-                "down": f"Send {{{value} down}}\nSleep, {delay}",
-                "held": f"Send {{{value} down}}"
+                "up": f"Send {KeyVal.UP}",
+                "down": f"Send {KeyVal.DOWN}\nSleep, {delay}",
+                "held": f"Send {KeyVal.DOWN}"
             }
 
         # return self.render_template('joystick/multihold_bind.ahk', bindings = bindings, timer = timer)
         return self._hold_script(bindings = bindings)
-
 
     def _simple(self, **kwargs):
         bindings = kwargs.pop("bindings", False)
@@ -95,14 +95,6 @@ class JoyStickMixin(ScriptEngine):
             raise ValueError("No bindings given")
         
         return self.render_template('joystick/simple_bind.ahk', bindings=bindings)
-
-    def _hold(self, **kwargs):
-        bindings = kwargs.pop("bindings", False)
-
-        if bindings == False:
-            raise ValueError("No bindings given")
-
-        return self.render_template('joystick/hold_bind.ahk', bindings=bindings)
     
     def _simple_script(self, **kwargs):
         raise NotImplementedError

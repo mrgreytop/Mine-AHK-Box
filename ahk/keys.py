@@ -1,6 +1,5 @@
 """
 The ahk.keys module contains some useful classes for working with 'special' keys.
-It also
 """
 
 
