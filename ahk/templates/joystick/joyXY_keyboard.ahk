@@ -1,6 +1,11 @@
 {% extends "base.ahk" %}
 {% block body %}
-KeysDown := []
+global KeysToHoldDown := []
+{% for mod,map in modifiers.items() %}
+{% if mod[1] == "T" %}
+global {{mod[0]}}flag := False
+{% endif %}
+{% endfor %}
 SetTimer, WatchAxis, {{timer}}
 return
 
@@ -36,23 +41,44 @@ GetDirection(X, Y)
     return %direction%
 }
 
-WatchAxis:
-JoyX := GetKeyState("{{axes['X']}}")  
-JoyY := GetKeyState("{{axes['Y']}}") 
-KeysDown := KeysToHoldDown
+WatchAxis(){
+    JoyX := GetKeyState("{{axes['X']}}")  
+    JoyY := GetKeyState("{{axes['Y']}}") 
+    KeysDown := KeysToHoldDown
 
-KeysToHoldDown := GetDirection(JoyX, JoyY)
+    KeysToHoldDown := GetDirection(JoyX, JoyY)
 
-{% raw %}
-SetKeyDelay -1  ; Avoid delays between keystrokes.
-if (KeysToHoldDown = KeysDown){
+    {% for mod,map in modifiers.items() %}
+    {% if mod[1] == "T" %}
+    if (GetKeyState("{{mod[0]}}")){
+        if ({{mod[0]}}flag){
+            Send, { {{map}} Up}
+            {{mod[0]}}flag := False
+        }else{
+            Send, { {{map}} Down}
+            {{mod[0]}}flag := True
+        }
+    }
+    {% else %}
+    if (GetKeyState("{{mod[0]}}")){
+        Send, { {{map}} Down}
+    }else{
+        Send, { {{map}} Up}
+    }
+    {% endif %}
+    {% endfor %}
+
+    SetKeyDelay -1  ; Avoid delays between keystrokes.
+    {% raw %}
+    if (KeysToHoldDown = KeysDown){
+        return
+    }else{
+        for index, key in KeysDown
+            Send {%key% Up}
+        for index, key in KeysToHoldDown
+            Send {%key% Down}
+    }
+    {% endraw %}
     return
-}else{
-    for index, key in KeysDown
-        Send {%key% Up}
-    for index, key in KeysToHoldDown
-        Send {%key% Down}
 }
-return
-{% endraw %}
 {% endblock body %}

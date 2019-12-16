@@ -2,7 +2,7 @@
 import logging
 from ahk.script import ScriptEngine
 from ahk.utils import make_logger
-from ahk.keys import Key
+from ahk.keys import Key, KeyModifier
 
 logger = make_logger(__name__)
 
@@ -78,7 +78,7 @@ class JoyStickMixin(ScriptEngine):
         delay = kwargs.pop("delay", 200)
 
         for key, value in bindings.items():
-            KeyVal = Key(Key_name = value)
+            KeyVal = Key(key_name = value)
             bindings[key] = {
                 "up": f"Send {KeyVal.UP}",
                 "down": f"Send {KeyVal.DOWN}\nSleep, {delay}",
@@ -125,15 +125,18 @@ class JoyStickMixin(ScriptEngine):
     def joyXY_keyboard(self,
     timer = 5, 
     axes = {"X":"JoyX", "Y":"JoyY"},
-    keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"}):
+    keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"},
+    modifiers = {}):
         
         """
         Maps the input from an analog stick to four direction keys with 8 directional output
         """
-        script = self.render_template("joystick/joyXY_keyboard.ahk", keys = keys, axes = axes, timer = timer)
+        
+        script = self.render_template("joystick/joyXY_keyboard.ahk", 
+        keys = keys, axes = axes, timer = timer, modifiers = modifiers)
         proc = self.run_script(script, blocking=False)
         return proc
-        
+    
     def joy_2_mouse(self,timer = 5,
     sensitivity = 0.3,axes={"X": "JoyU", "Y": "JoyR"},
     thresholds = {"Upper":55, "Lower":45},mode = "FPS"):
