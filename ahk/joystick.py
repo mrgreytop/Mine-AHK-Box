@@ -78,7 +78,7 @@ class JoyStickMixin(ScriptEngine):
         delay = kwargs.pop("delay", 200)
 
         for key, value in bindings.items():
-            KeyVal = Key(Key_name = value)
+            KeyVal = Key(key_name = value)
             bindings[key] = {
                 "up": f"Send {KeyVal.UP}",
                 "down": f"Send {KeyVal.DOWN}\nSleep, {delay}",
@@ -126,19 +126,14 @@ class JoyStickMixin(ScriptEngine):
     timer = 5, 
     axes = {"X":"JoyX", "Y":"JoyY"},
     keys = {"Left":"a", "Right":"d","Up":"w","Down":"s"},
-    modifiers = []):
+    modifiers = {}):
         
         """
         Maps the input from an analog stick to four direction keys with 8 directional output
         """
-        for m in modifiers:
-            if isinstance(m, str):
-                try:
-                    m = KeyModifier(m)
-            else:
-                raise ValueError
+        
         script = self.render_template("joystick/joyXY_keyboard.ahk", 
-        keys = keys, axes = axes, timer = timer, mods = modifiers)
+        keys = keys, axes = axes, timer = timer, modifiers = modifiers)
         proc = self.run_script(script, blocking=False)
         return proc
     

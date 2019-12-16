@@ -32,36 +32,6 @@ WaitForJoy2Up(){
     }
     return
 }
-Joy9::
-Send {LCtrl down}
-Sleep, 200
-SetTimer, WaitForJoy9Up, 10
-return
-
-WaitForJoy9Up(){
-    if (GetKeyState("Joy9")){
-        Send {LCtrl down}
-    }else{
-        Send {LCtrl up}
-        SetTimer, WaitForJoy9Up, Off
-    }
-    return
-}
-Joy10::
-Send {LShift down}
-Sleep, 200
-SetTimer, WaitForJoy10Up, 10
-return
-
-WaitForJoy10Up(){
-    if (GetKeyState("Joy10")){
-        Send {LShift down}
-    }else{
-        Send {LShift up}
-        SetTimer, WaitForJoy10Up, Off
-    }
-    return
-}
 
 ExitApp
 
@@ -70,7 +40,20 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 
-KeysDown := []
+    Joy3::e
+    Joy7::F3
+    Joy8::Escape
+    Joy4::f
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+global KeysToHoldDown := []
+global Joy10flag := False
 SetTimer, WatchAxis, 5
 return
 
@@ -106,25 +89,116 @@ GetDirection(X, Y)
     return %direction%
 }
 
-WatchAxis:
-JoyX := GetKeyState("JoyX")  
-JoyY := GetKeyState("JoyY") 
-KeysDown := KeysToHoldDown
+WatchAxis(){
+    JoyX := GetKeyState("JoyX")  
+    JoyY := GetKeyState("JoyY") 
+    KeysDown := KeysToHoldDown
 
-KeysToHoldDown := GetDirection(JoyX, JoyY)
+    KeysToHoldDown := GetDirection(JoyX, JoyY)
 
-
-SetKeyDelay -1  ; Avoid delays between keystrokes.
-if (KeysToHoldDown = KeysDown){
-    return
-}else{
-    for index, key in KeysDown
-        Send {%key% Up}
-    for index, key in KeysToHoldDown
-        Send {%key% Down}
+            if (GetKeyState("Joy10")){
+        if (Joy10flag){
+            Send, { LShift Up}
+            Joy10flag := False
+        }else{
+            Send, { LShift Down}
+            Joy10flag := True
+        }
+    }
+                if (GetKeyState("Joy9")){
+        Send, { LCtrl Down}
+    }else{
+        Send, { LCtrl Up}
+    }
+        
+    SetKeyDelay -1  ; Avoid delays between keystrokes.
+    
+    if (KeysToHoldDown = KeysDown){
+        return
+    }else{
+        for index, key in KeysDown
+            Send {%key% Up}
+        for index, key in KeysToHoldDown
+            Send {%key% Down}
+    }
+        return
 }
-return
 
 ExitApp
 
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+SetTimer, WatchJoystick, 5
+return
+
+GetDelta(axis){
+    if (axis < 45){
+        delta := axis - 45
+    }else if (axis > 55){
+        delta := axis - 55
+    }else{
+        delta := 0
+    }
+    return delta
+}
+
+WatchJoystick:
+    X := GetKeyState("JoyU")
+    Y := GetKeyState("JoyR")
+
+    deltaX := Getdelta(X)
+    deltaY := Getdelta(Y)
+
+    if abs(deltaX) > 0 or abs(deltaY) > 0
+                DllCall("mouse_event" ,uint, 1, int, deltaX*0.3, int, deltaY*0.3)
+            return
+
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+#Include, C:\Users\tompr\OneDrive\coding\Mine-AHK-Box\Mine-AHK-Box\ahk\templates\joystick\XInput.ahk
+XInput_Init()
+
+SetTimer, WatchTriggers, 5
+return
+
+GetKeysState(triggers){
+    KeysState := {}
+    for key, value in triggers
+        if value > 190
+            KeysState[key] := "Down"
+        else if value < 190
+            KeysState[key] := "Up"
+    return KeysState
+}
+
+WatchTriggers:
+    PrevKeysState := KeysState
+    State := XInput_GetState(1-1)
+
+    LT := State.bLeftTrigger
+    RT := State.bRightTrigger
+
+    triggers := { right:LT, left:RT}
+
+    KeysState := GetKeysState(triggers)
+
+    for key, state in KeysState
+        if (PrevKeysState[key] = state){
+        }else if (state = "Down"){        
+            MouseClick, %key%, , , 1, 0, D
+        }else if (state = "Up"){
+            MouseClick, %key%, , , 1, 0, U
+        }
+
+    return
+
+ExitApp
 DEBUG:ahk.script:Blocking set to: False
