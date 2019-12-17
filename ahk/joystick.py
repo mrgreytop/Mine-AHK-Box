@@ -6,34 +6,6 @@ from ahk.keys import Key, KeyModifier
 
 logger = make_logger(__name__)
 
-
-class BindingMap(dict):
-    """
-    Subclass of dict which incorporates an __add__ method
-    """
-    def __init__(self, *args, **kwargs):
-
-        if len(args) == 1:
-            if hasattr(args[0], "__iter__"):
-                if len(kwargs) > 0:
-                    self._d = dict(args[0], **kwargs)
-                else:
-                    self._d = dict(args[0])
-            else:
-                raise TypeError(f"Operand type(s) must be iterable for : '{type(args[0])}'")
-        elif len(args) != 0:
-            raise TypeError(f"{self.__class__.__name__} expected at most 1 arguments, got {len(args)}")
-        else:
-            if len(kwargs) > 0:
-                self._d = dict(**kwargs)
-            else:
-                self._d = {}
-        
-        super().__init__(self._d)
-        
-    def __add__(self, other: dict):
-        return BindingMap({**self, **other})
-
 class JoyStickMixin(ScriptEngine):
     
     _bind_modes = {

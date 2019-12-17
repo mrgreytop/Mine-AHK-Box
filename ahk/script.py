@@ -47,6 +47,7 @@ class ScriptEngine(object):
         kwargs['directives'] = directives
         template = self.env.get_template(template_name)
         try:
+            logger.debug(f"Rendering template: {template_name}")
             rend = template.render(**kwargs)
         except TemplateSyntaxError as e:
             logger.debug(f"TemplateSyntaxError at line no: {e.lineno}")

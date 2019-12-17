@@ -1,53 +1,4 @@
-DEBUG:ahk.script:Running script text: 
-#NoEnv
-#Persistent
-
-Joy1::
-Send {Space down}
-Sleep, 200
-SetTimer, WaitForJoy1Up, 10
-return
-
-WaitForJoy1Up(){
-    if (GetKeyState("Joy1")){
-        Send {Space down}
-    }else{
-        Send {Space up}
-        SetTimer, WaitForJoy1Up, Off
-    }
-    return
-}
-Joy2::
-Send {q down}
-Sleep, 200
-SetTimer, WaitForJoy2Up, 10
-return
-
-WaitForJoy2Up(){
-    if (GetKeyState("Joy2")){
-        Send {q down}
-    }else{
-        Send {q up}
-        SetTimer, WaitForJoy2Up, Off
-    }
-    return
-}
-
-ExitApp
-
-DEBUG:ahk.script:Blocking set to: False
-DEBUG:ahk.script:Running script text: 
-#NoEnv
-#Persistent
-
-    Joy3::e
-    Joy7::F3
-    Joy8::Escape
-    Joy4::f
-
-ExitApp
-
-DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/joyXY_keyboard.ahk
 DEBUG:ahk.script:Running script text: 
 #NoEnv
 #Persistent
@@ -96,7 +47,12 @@ WatchAxis(){
 
     KeysToHoldDown := GetDirection(JoyX, JoyY)
 
-            if (GetKeyState("Joy10")){
+            if (GetKeyState("Joy9")){
+        Send, { LControl Down}
+    }else{
+        Send, { LControl Up}
+    }
+                if (GetKeyState("Joy10")){
         if (Joy10flag){
             Send, { LShift Up}
             Joy10flag := False
@@ -104,11 +60,6 @@ WatchAxis(){
             Send, { LShift Down}
             Joy10flag := True
         }
-    }
-                if (GetKeyState("Joy9")){
-        Send, { LCtrl Down}
-    }else{
-        Send, { LCtrl Up}
     }
         
     SetKeyDelay -1  ; Avoid delays between keystrokes.
@@ -127,6 +78,7 @@ WatchAxis(){
 ExitApp
 
 DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/joy_2_mouse.ahk
 DEBUG:ahk.script:Running script text: 
 #NoEnv
 #Persistent
@@ -160,10 +112,65 @@ WatchJoystick:
 ExitApp
 
 DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/holdscript_bind.ahk
 DEBUG:ahk.script:Running script text: 
 #NoEnv
 #Persistent
-#Include, C:\Users\tompr\OneDrive\coding\Mine-AHK-Box\Mine-AHK-Box\ahk\templates\joystick\XInput.ahk
+
+Joy2::
+Send {q down}
+Sleep, 200
+SetTimer, WaitForJoy2Up, 10
+return
+
+WaitForJoy2Up(){
+    if (GetKeyState("Joy2")){
+        Send {q down}
+    }else{
+        Send {q up}
+        SetTimer, WaitForJoy2Up, Off
+    }
+    return
+}
+Joy1::
+Send {Space down}
+Sleep, 200
+SetTimer, WaitForJoy1Up, 10
+return
+
+WaitForJoy1Up(){
+    if (GetKeyState("Joy1")){
+        Send {Space down}
+    }else{
+        Send {Space up}
+        SetTimer, WaitForJoy1Up, Off
+    }
+    return
+}
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/simple_bind.ahk
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+    Joy3::e
+    Joy4::f
+    Joy7::F3
+    Joy8::Escape
+    Joy5::WheelUp
+    Joy6::WheelDown
+
+ExitApp
+
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/trigger_2_mouseclick.ahk
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+#Include, C:\Users\tompr\OneDrive\coding\Mine-AHK-Box\ahk\templates\joystick\XInput.ahk
 XInput_Init()
 
 SetTimer, WatchTriggers, 5
@@ -201,4 +208,59 @@ WatchTriggers:
     return
 
 ExitApp
+DEBUG:ahk.script:Blocking set to: False
+DEBUG:ahk.script:Rendering template: joystick/joy_gridmouse.ahk
+DEBUG:ahk.script:Running script text: 
+#NoEnv
+#Persistent
+
+; initialise
+global Direction := [0,0]
+global move := Func("GridMoveMouse").bind(Direction)
+
+SetTimer, WatchPOV, 5
+return
+
+GetDir(POV){
+    if POV < 0
+        return [0,0]
+    else if POV > 31401
+        return [0, -35]
+    else if POV between -1 and 4400
+        return [0, -35]
+    else if POV between 4401 and 13400
+        return [35, 0]
+    else if POV between 13401 and 22400
+        return [0, 35]
+    else if POV between 22401 and 31400
+        return [-35, 0]
+
+}
+
+WatchPOV(){
+    PrevDirection := Direction
+    POV := GetKeyState("JoyPOV")
+
+    Direction := GetDir(POV)
+
+    if (PrevDirection[1] = Direction[1] and PrevDirection[2] = Direction[2]){
+        return
+    }else if (Direction[1] = 0 and Direction[2] = 0){
+ 	    SetTimer, %move%, Off
+    }else{
+        MouseMove, Direction[1], Direction[0], 0, R
+        SetTimer, %move%, Off
+        move := Func("GridMoveMouse").bind(Direction)
+                SetTimer, %move%, 100
+    }
+    return
+}
+
+GridMoveMouse(XY){
+    MouseMove, XY[1], XY[2], 0, R
+    return
+}
+
+ExitApp
+
 DEBUG:ahk.script:Blocking set to: False
