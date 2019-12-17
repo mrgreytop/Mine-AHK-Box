@@ -171,6 +171,7 @@ DEBUG:ahk.script:Running script text:
 #NoEnv
 #Persistent
 #Include, C:\Users\tompr\OneDrive\coding\Mine-AHK-Box\ahk\templates\joystick\XInput.ahk
+
 XInput_Init()
 
 SetTimer, WatchTriggers, 5

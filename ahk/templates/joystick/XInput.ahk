@@ -55,7 +55,6 @@ XInput_Init(dll="xinput1_3")
     XINPUT_FLAG_GAMEPAD             := 0x00000001
     
     ;=============== END CONSTANTS =================
-    
     _XInput_hm := DllCall("LoadLibrary" ,"str",dll)
     
     if !_XInput_hm

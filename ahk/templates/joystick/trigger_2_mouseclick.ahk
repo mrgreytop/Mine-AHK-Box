@@ -1,6 +1,7 @@
 #NoEnv
 #Persistent
-#Include, C:\Users\tompr\OneDrive\coding\Mine-AHK-Box\ahk\templates\joystick\XInput.ahk
+#Include, {{XInputPath}}
+
 XInput_Init()
 
 SetTimer, WatchTriggers, {{timer}}

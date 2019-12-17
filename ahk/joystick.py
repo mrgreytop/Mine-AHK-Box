@@ -3,6 +3,8 @@ import logging
 from ahk.script import ScriptEngine
 from ahk.utils import make_logger
 from ahk.keys import Key, KeyModifier
+import os
+from pathlib import Path
 
 logger = make_logger(__name__)
 
@@ -129,12 +131,16 @@ class JoyStickMixin(ScriptEngine):
     def triggers_2_mouseclick(self,threshold = 190,
     timer = 5,joystick = 1,mapping = {"LT":"right", "RT":"left"}):
         
+        p = Path(__file__)
+        XInputPath = f"{p.parent}\\templates\\joystick\\XInput.ahk"
+
         script = self.render_template(
             'joystick/trigger_2_mouseclick.ahk', 
             threshold = threshold, 
             timer = timer,
             joystick = joystick,
-            mapping = mapping)
+            mapping = mapping,
+            XInputPath = XInputPath)
         
         # logger.debug(f"\n{script}")
         proc = self.run_script(script, blocking=False)
