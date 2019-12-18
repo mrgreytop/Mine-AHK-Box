@@ -1,7 +1,9 @@
 # Mine-AHK-Box
 Extended python API for AutoHotKey to map xbox controller input to keyboard and mouse buttons.
 
-In this project I have extended the API written by Spencer Young (see here: https://pypi.org/project/ahk/#deps ).The project aims to provide a high-level python API to map joystick buttons, and analogue sticks to a keyboard or mouse. 
+In this project I have extended the API written by Spencer Young (see here: https://pypi.org/project/ahk/#deps ).The project aims to provide a high-level python API to map joystick buttons, and analogue sticks to a keyboard or mouse using AutoHotKey (see here: https://www.autohotkey.com/ ).
+
+I have written an example python program, 'minecraft_example.py' which uses all the currently implmented methods from joystick.py . The example was made to use an xbox controller with Minecraft Java edition.
 
 ## Acknowledgements
 All the additions I have made to Spencer's API are contained within ahk/joystick.py or ahk/templates/joystick/\*.
